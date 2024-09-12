@@ -22,7 +22,6 @@ from reana_commons.validation.parameters import build_parameters_validator
 from reana_commons.errors import REANAValidationError
 from reana_commons.validation.compute_backends import build_compute_backends_validator
 
-from flask import jsonify
 import requests
 import json
 
@@ -90,7 +89,7 @@ def workflow_validation():
     try:
         reana_spec_file_warnings = validate_reana_yaml(reana_yaml)
     except Exception as e:
-        return jsonify(message=str(e), status="400"), 400
+        return json.dumps({"message":str(e), "status":"400"})
 
     """Validate REANA specification file."""
     if "options" in reana_yaml.get("inputs", {}):
@@ -99,14 +98,14 @@ def workflow_validation():
         try:
             validate_operational_options(workflow_type, workflow_options)
         except Exception as e:
-            return jsonify(message=str(e), status="400"), 400
+            return json.dumps(message=str(e), status="400")
 
     """Validate parameters."""
     reana_spec_params_warnings = None
     try:
         reana_spec_params_warnings = validate_parameters(reana_yaml)
     except Exception as e:
-        return jsonify(message=str(e), status="400"), 400
+        return json.dumps({"message":str(e), "status":"400"})
 
     response = {"reana_spec_file_warnings": reana_spec_file_warnings, 
                 "reana_spec_params_warnings": json.dumps(vars(reana_spec_params_warnings), default=list),
@@ -118,7 +117,7 @@ def workflow_validation():
     print("Sending Response:")
     print(response)
 
-    return jsonify(message=response, status="200"), 200
+    return json.dumps({"message":response, "status":"200"})
 
 def validate_parameters(reana_yaml: Dict) -> None:
     """Validate the presence of input parameters in workflow step commands and viceversa.
@@ -674,3 +673,4 @@ class EnvironmentValidatorSnakemake(EnvironmentValidatorBase):
             kubernetes_uid = step.get("kubernetes_uid")
             self._validate_environment_image(image, kubernetes_uid=kubernetes_uid)
   
+workflow_validation()
