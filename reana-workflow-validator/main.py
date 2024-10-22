@@ -24,8 +24,19 @@ from reana_commons.validation.compute_backends import build_compute_backends_val
 
 import requests
 import json
+import yaml
+import json
 
 def workflow_validation():
+
+    print("Env:")
+    reana_yaml_passed = os.environ['test']
+    print(reana_yaml_passed)
+
+    yaml_object = yaml.safe_load(reana_yaml_passed)
+
+    print("JSON reana yaml:")
+    print(json.dumps(yaml_object))
 
     # Example
     reana_yaml = {'inputs': {'files': ['code/helloworld.py', 'data/names.txt'], 'parameters': {'helloworld': 'code/helloworld.py', 'inputfile': 'data/names.txt', 'outputfile': 'results/greetings.txt', 'sleeptime': 0}}, 'outputs': {'files': ['results/greetings.txt']}, 'runtime_parameters': False, 'server_capabilities': False, 'skip_validate_environments': True, 'version': '0.3.0', 'workflow': {'specification': {'steps': [{'commands': ['sleep 666666666666666'], 'environment': 'docker.io/impidio/urootshell:0.4'}]}, 'type': 'serial'}}
@@ -116,6 +127,13 @@ def workflow_validation():
 
     print("Sending Response:")
     print(response)
+
+    # Serializing json
+    json_object = json.dumps(response, indent=4)
+    
+    # Writing to sample.json
+    with open("reana_results.json", "w") as outfile:
+        outfile.write(json_object)
 
     return json.dumps({"message":response, "status":"200"})
 
