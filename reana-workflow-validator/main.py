@@ -29,18 +29,13 @@ import json
 
 def workflow_validation():
 
-    print("Env:")
-    reana_yaml_passed = os.environ['test']
-    print(reana_yaml_passed)
+    # Get workspace mount path in order to read reana.yaml
+    workspace_mount_path = os.environ['workspace_mount_path']
 
-    yaml_object = yaml.safe_load(reana_yaml_passed)
-
-    print("JSON reana yaml:")
-    print(json.dumps(yaml_object))
-
-    # Example
-    reana_yaml = {'inputs': {'files': ['code/helloworld.py', 'data/names.txt'], 'parameters': {'helloworld': 'code/helloworld.py', 'inputfile': 'data/names.txt', 'outputfile': 'results/greetings.txt', 'sleeptime': 0}}, 'outputs': {'files': ['results/greetings.txt']}, 'runtime_parameters': False, 'server_capabilities': False, 'skip_validate_environments': True, 'version': '0.3.0', 'workflow': {'specification': {'steps': [{'commands': ['sleep 666666666666666'], 'environment': 'docker.io/impidio/urootshell:0.4'}]}, 'type': 'serial'}}
+    # Harcoded Example
+    # reana_yaml = {'inputs': {'files': ['code/helloworld.py', 'data/names.txt'], 'parameters': {'helloworld': 'code/helloworld.py', 'inputfile': 'data/names.txt', 'outputfile': 'results/greetings.txt', 'sleeptime': 0}}, 'outputs': {'files': ['results/greetings.txt']}, 'runtime_parameters': False, 'server_capabilities': False, 'skip_validate_environments': True, 'version': '0.3.0', 'workflow': {'specification': {'steps': [{'commands': ['sleep 666666666666666'], 'environment': 'docker.io/impidio/urootshell:0.4'}]}, 'type': 'serial'}}
     
+    reana_yaml = open(workspace_mount_path + "/reana.yaml", 'r').read()  # FIXME: get the path of workspace correctly, currently there is the workspace path along with some extra fields
     print("Received:")
     print(reana_yaml)
 
@@ -127,6 +122,11 @@ def workflow_validation():
 
     print("Sending Response:")
     print(response)
+
+    # Output results to a file
+    reana_validation_results = open(workspace_mount_path + "/reana_validation_results.json", "w")
+    reana_validation_results.writelines(response)
+    reana_validation_results.close()
 
     # Serializing json
     json_object = json.dumps(response, indent=4)
